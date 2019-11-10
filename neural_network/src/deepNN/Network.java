@@ -65,7 +65,7 @@ public class Network {
     public void connectNodeToRandomWeights(Node node) {
         double weight = Math.random() * (1 - 0);
         node.setWeight(weight);
-        System.out.println("    * Poids assigné au node num°"+node.getNode_id()+ " => w="+weight);
+        System.out.println("\t* Poids assigné au node num°"+node.getNode_id()+ " => w="+weight);
     }
 
     public Double forward() {

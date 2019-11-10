@@ -136,8 +136,7 @@ public class Network {
         }
         */
         switch (actFunc.toLowerCase()) {
-            case "sigmoid":
-                return 1/(1+Math.exp(-val));
+            case "sigmoid": return 1/(1+Math.exp(-val));
             case "tanh": return Math.atan(val);
             case "relu": return Math.max(0, val);
         }

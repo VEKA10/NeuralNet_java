@@ -8,7 +8,7 @@ public class Network {
     private int num_input;
     private Double learning_step;
     private Double mean_square_error;
-    private Double trainOutput = 0.5; // juste pour teste
+    private Double trainOutput = 0.3; // juste pour teste
     private ArrayList<Integer> amount_of_node_per_layer = new ArrayList<>();
     private ArrayList<Node> nodes;
     private ArrayList<ArrayList> layer = new ArrayList<>();
@@ -88,8 +88,11 @@ public class Network {
                     //** ============= DOT PRODUCT =============**//
                     Double currentNodeBias = currentHiddenNode.getBias();
                     // set les values de l'input layer
+                    /*
                     Double currentNodeInput = previousLayerNode.getOutput() != null ?
                                             previousLayerNode.getOutput() : 2.0;
+                     */
+                    Double currentNodeInput = previousLayerNode.getOutput();
                     output += currentNodeInput * previousLayerNode.get_weights()[j];
                 }
                 // SET INPUT OF NODE => avec ou sans le dot product ?

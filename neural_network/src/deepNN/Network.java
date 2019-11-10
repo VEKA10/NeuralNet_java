@@ -43,6 +43,12 @@ public class Network {
                 Node node = new Node(currentNodeWeightsCount);
                 nodes.add(node);
 
+                // SET INPUTS OF INPUT LAYER => TEST
+                if (layer_index == 0){
+                    node.setInput(0.8);
+                    node.setOutput(0.8);
+                }
+
                 //** ============= NODE TO WEIGHTS: 1-N relation =============**//
                 for (int j = 0; j < currentNodeWeightsCount; j++){
                     this.connectNodeToRandomWeights(node); //nodes.get(nodes.size()-1)
@@ -84,8 +90,10 @@ public class Network {
                                             previousLayerNode.getOutput() : 2.0;
                     output += currentNodeInput * previousLayerNode.get_weights()[j];
                 }
-                //ACTIVATION : for example Sigmoid
+                // SET INPUT OF NODE => avec ou sans le dot product ?
+                currentHiddenNode.setInput(output);
 
+                //ACTIVATION : for example Sigmoid
                 output = useActivationFunction("sigmoid", output);
                 currentHiddenNode.setOutput(output);
                 System.out.println("\t** Flushed output : "+output);
@@ -104,24 +112,34 @@ public class Network {
     public void trainNetwork(Integer...inputs) {
         Double output = forward();
         System.out.println("Network Output : "+output);
-        // MSE
         Double mse = MSEError(output, this.trainOutput);
-
-        // gradient descent => partial derivative => chain rule
-        // for each node en partant de l'erreur total
         /*
-        Double step = 0.5;
-        Double deltaErrorTotalNetOut = -(this.trainOutput - output);
-        Double deltaNetOutNetInput = node.get_output * (1 - node.get_output);
-        Double deltaNetInputInputWeight = node.get_input * node.get_weights()[i];
-        Double updateWeight = node.get_weights()[i] - step * deltaErrorTotalNetOut;
-        node.set_weightAtIndex(index, updateWeight);
+            gradient descent => partial derivative => chain rule
+            for each node en partant de l'erreur total
+            display all network
+            start by end of array
         */
+        for (int i = this.layer.size()-1; i >= 0; i--){
+            for (int j = this.layer.get(i).size()-1; j >= 0; j--){
+                Node currentNode = (Node)this.layer.get(i).get(j);
+                Double updatedWeight = gradientDescentOn(currentNode, mse, 0, 0.5);
+                currentNode.setWeightsAtIndex(0, updatedWeight);
+            }
+        }
+        System.out.println(this.layer);
+    }
+
+    private Double gradientDescentOn(Node node, Double mse, int NodeWeightIndex, Double step) {
+        Double deltaErrorTotalNetOut = mse;
+        Double deltaNetOutNetInput = node.getOutput() * (1 - node.getOutput());
+        Double deltaNetInputInputWeight = node.getInput() * node.get_weights()[NodeWeightIndex];
+        Double updateWeight = node.get_weights()[NodeWeightIndex] - step * deltaErrorTotalNetOut;
+        return updateWeight;
     }
 
     public Double MSEError(Double netOutput, Double trainOutput) {
         /*
-        Si plusieurs netOutput => faire la somme des erreurs
+            Si plusieurs netOutput => faire la somme des erreurs
          */
         Double error = trainOutput - netOutput;
         Double mse = 0.5*(Math.pow(error, 2));
@@ -154,7 +172,7 @@ public class Network {
     }
 
     /*
-    GETTERS || SETTERS
+        GETTERS || SETTERS
      */
     public void setAmount_of_node_per_layer(int amount) {
         this.amount_of_node_per_layer.add(amount);

@@ -6,6 +6,8 @@ import java.util.*;
 public class Network {
 
     private int num_input;
+    private Double learning_step;
+    private Double mean_square_error;
     private Double trainOutput = 0.5; // juste pour teste
     private ArrayList<Integer> amount_of_node_per_layer = new ArrayList<>();
     private ArrayList<Node> nodes;
@@ -122,11 +124,16 @@ public class Network {
         for (int i = this.layer.size()-1; i >= 0; i--){
             for (int j = this.layer.get(i).size()-1; j >= 0; j--){
                 Node currentNode = (Node)this.layer.get(i).get(j);
-                Double updatedWeight = gradientDescentOn(currentNode, mse, 0, 0.5);
-                currentNode.setWeightsAtIndex(0, updatedWeight);
+
+                //**========= EACH WEIGHT OF NODE ==========**//
+                for (int k = 0; k < currentNode.get_weights().length; k++){
+                    Double updatedWeight = gradientDescentOn(currentNode, mse, k, 0.5);
+                    currentNode.setWeightsAtIndex(k, updatedWeight);
+                }
             }
         }
-        System.out.println(this.layer);
+        System.out.println("New Weights: \n"+this.layer);
+        this.mean_square_error = mse;
     }
 
     private Double gradientDescentOn(Node node, Double mse, int NodeWeightIndex, Double step) {
@@ -168,7 +175,12 @@ public class Network {
     @Override
     public String toString(){
         return "Nodes per layer: " + this.amount_of_node_per_layer + "\n" +
-                ">> Layers : " + this.layer;
+                    ">> Layers : " + this.layer + "\n"+
+                    "MSE : "+this.mean_square_error;
+    }
+
+    public void printMSE(){
+        System.out.println(this.mean_square_error.toString());
     }
 
     /*
@@ -182,5 +194,8 @@ public class Network {
         return this.amount_of_node_per_layer;
     }
 
+    public Double getMSE(){
+        return this.mean_square_error;
+    }
 
 }

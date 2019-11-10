@@ -67,6 +67,10 @@ public class Node {
         }
     }
 
+    public void setWeightsAtIndex(int index, Double w) {
+        this.weights[index] = w;
+    }
+
     public Double[] get_weights() {
         return this.weights;
     }

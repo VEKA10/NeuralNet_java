@@ -5,10 +5,11 @@ import java.util.*;
 
 public class Network {
 
+    private int num_input;
+    private Double trainOutput = 0.5; // juste pour teste
     private ArrayList<Integer> amount_of_node_per_layer = new ArrayList<>();
     private ArrayList<Node> nodes;
     private ArrayList<ArrayList> layer = new ArrayList<>();
-    private int num_input;
     private String activationFunc;
     private String[] activationFunctions =  {"sigmoid","ReLU","tanH"};
 
@@ -78,7 +79,9 @@ public class Network {
 
                     //** ============= DOT PRODUCT =============**//
                     Double currentNodeBias = currentHiddenNode.getBias();
-                    Double currentNodeInput = 2.0; //previousLayerNode.getInput();
+                    // set les values de l'input layer
+                    Double currentNodeInput = previousLayerNode.getOutput() != null ?
+                                            previousLayerNode.getOutput() : 2.0;
                     output += currentNodeInput * previousLayerNode.get_weights()[j];
                 }
                 //ACTIVATION : for example Sigmoid
@@ -94,14 +97,26 @@ public class Network {
     }
 
     /*
-        code => forward training :
-            1) sum of input for each hidden layer nodes
-            2) back-propagation of weights for each node with square error between
-            neural_output and train_output => MSE
+        Net training :
+            * back-propagation of weights for each node with square error between
+            neural_output and train_output => try to minimze MSE value
      */
     public void trainNetwork(Integer...inputs) {
         Double output = forward();
         System.out.println("Network Output : "+output);
+        // MSE
+        Double mse = MSEError(output, this.trainOutput);
+
+        // gradient descent => partial derivative => chain rule
+        // for each node en partant de l'erreur total
+        /*
+        Double step = 0.5;
+        Double deltaErrorTotalNetOut = -(this.trainOutput - output);
+        Double deltaNetOutNetInput = node.get_output * (1 - node.get_output);
+        Double deltaNetInputInputWeight = node.get_input * node.get_weights()[i];
+        Double updateWeight = node.get_weights()[i] - step * deltaErrorTotalNetOut;
+        node.set_weightAtIndex(index, updateWeight);
+        */
     }
 
     public Double MSEError(Double netOutput, Double trainOutput) {

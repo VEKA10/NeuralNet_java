@@ -1,10 +1,7 @@
 package NeuralNetJAVA;
 
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Network {
 
@@ -12,10 +9,8 @@ public class Network {
     private ArrayList<Node> nodes;
     private ArrayList<ArrayList> layer = new ArrayList<>();
     private int num_input;
-    private String[] activationFunctions = {"sigmoïd","ReLU",
-                                            "binaryStepfunc",
-                                            "linear","tanH",
-                                            "leakyReLU","softmax","swich"};
+    private String activationFunc;
+    private String[] activationFunctions =  {"sigmoid","ReLU","tanH"};
 
 
     /*
@@ -32,17 +27,21 @@ public class Network {
         }
         // create the network : n nodes per layer
         int layer_index = 0;
-        for (int k = 0; k < this.amount_of_node_per_layer.size()-1; k++){
-            //for (int value: this.amount_of_node_per_layer) {
+        for (int k = 0; k < this.amount_of_node_per_layer.size(); k++){
             nodes = new ArrayList<>(); // to reset the nodes and flush in layer
             System.out.println("** "+this.amount_of_node_per_layer.get(k)+" nodes created for layer "+layer_index);
-            for (int i = 0; i<this.amount_of_node_per_layer.get(k); i++){
+
+            //** ============= CREATE N NODES FOR LAYER X =============**//
+            for (int i = 0; i < this.amount_of_node_per_layer.get(k); i++){
                 // Nbre de weights = currentLayerNodes * nextLayerNodes
                 int num_weights = this.amount_of_node_per_layer.get(k);
-                int total_num_weights = this.amount_of_node_per_layer.get(k)*this.amount_of_node_per_layer.get(k+1);
+                int total_num_weights = k < this.amount_of_node_per_layer.size()-1 ?
+                        this.amount_of_node_per_layer.get(k)*this.amount_of_node_per_layer.get(k+1) :
+                        this.amount_of_node_per_layer.get(k)*this.amount_of_node_per_layer.get(k-1);
                 int currentNodeWeightsCount = (int) total_num_weights/num_weights;
                 Node node = new Node(currentNodeWeightsCount);
                 nodes.add(node);
+
                 //** ============= NODE TO WEIGHTS: 1-N relation =============**//
                 for (int j = 0; j < currentNodeWeightsCount; j++){
                     this.connectNodeToRandomWeights(node); //nodes.get(nodes.size()-1)
@@ -62,28 +61,36 @@ public class Network {
         System.out.println("    * Poids assigné au node num°"+node.getNode_id()+ " => w="+weight);
     }
 
-    public void forward() {
+    public Double forward() {
         Double output = 0.0;
-        System.out.println("**=========================**\nEach Layer : ");
+        System.out.println("HIDDEN LAYERS :\n**=========================**");
         for (int i = 1; i < this.layer.size(); i++) { //START AT LAYER 1 (NOT INPUTS)
+
+            //** ============= EACH HIDDEN LAYER NODES =============**//
             for (int j = 0; j < this.layer.get(i).size(); j++){ //ALL NODES OF EACH HIDDEN LAYERS
                 Node currentHiddenNode = (Node)this.layer.get(i).get(j);
-                System.out.println(currentHiddenNode.getNode_id());
+                System.out.println("Node "+currentHiddenNode.getNode_id());
 
+                //** ============= EACH PREVIOUS LAYER NODES =============**//
                 for (int k = 0; k < this.layer.get(i-1).size(); k++) {
                     Node previousLayerNode = (Node)this.layer.get(i-1).get(k);
                     System.out.println(previousLayerNode.get_weights()[j]);
+
                     //** ============= DOT PRODUCT =============**//
                     Double currentNodeBias = currentHiddenNode.getBias();
                     Double currentNodeInput = 2.0; //previousLayerNode.getInput();
                     output += currentNodeInput * previousLayerNode.get_weights()[j];
                 }
                 //ACTIVATION : for example Sigmoid
-                output = 1/(1+Math.exp(-output));
+
+                output = useActivationFunction("sigmoid", output);
                 currentHiddenNode.setOutput(output);
                 System.out.println("\t** Flushed output : "+output);
             }
+            System.out.println("**=========================**");
         }
+        // return output to calculate MSE
+        return output;
     }
 
     /*
@@ -92,16 +99,34 @@ public class Network {
             2) back-propagation of weights for each node with square error between
             neural_output and train_output => MSE
      */
-    public void trainNetwork() {
-        // 1) forward => outputs * each weight <=> dot product => famille vectorielle Vect(a1,..., aN)
-
+    public void trainNetwork(Integer...inputs) {
+        Double output = forward();
+        System.out.println("Network Output : "+output);
     }
 
-    public void addActivationFunction(String actFunc) {
+    public Double MSEError(Double netOutput, Double trainOutput) {
+        /*
+        Si plusieurs netOutput => faire la somme des erreurs
+         */
+        Double error = trainOutput - netOutput;
+        Double mse = 0.5*(Math.pow(error, 2));
+        return mse;
+    }
+
+    public Double useActivationFunction(String actFunc, Double val) {
+        /*
         System.out.println("Activation functions you can choose : ");
         for (String func: this.activationFunctions) {
             System.out.println("\t* "+func);
         }
+        */
+        switch (actFunc.toLowerCase()) {
+            case "sigmoid":
+                return 1/(1+Math.exp(-val));
+            case "tanh": return Math.atan(val);
+            case "relu": return Math.max(0, val);
+        }
+        return 0.0;
     }
 
     public ArrayList<Integer> returnNetwork() {
@@ -124,4 +149,6 @@ public class Network {
     public ArrayList<Integer> getAmount_of_node_per_layer() {
         return this.amount_of_node_per_layer;
     }
+
+
 }

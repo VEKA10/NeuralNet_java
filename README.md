@@ -1,2 +1,2 @@
 # NeuralNet_java
-neural net personal framework written in java language 
+DNN personal framework written in java

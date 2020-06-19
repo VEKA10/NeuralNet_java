@@ -1,3 +1,3 @@
 # NeuralNet_java
-DNN personal framework written in java,
+DNN personal framework,
 approche naïve 

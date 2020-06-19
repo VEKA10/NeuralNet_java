@@ -8,7 +8,7 @@ public class Network {
     private int num_input;
     private Double learning_step;
     private Double mean_square_error;
-    private Double trainOutput = 0.3; // juste pour teste
+    private Double trainOutput = 0.3; 
     private ArrayList<Integer> amount_of_node_per_layer = new ArrayList<>();
     private ArrayList<Node> nodes;
     private ArrayList<ArrayList> layer = new ArrayList<>();
